@@ -1,0 +1,23 @@
+﻿using System;
+namespace Explora.dto
+{
+	public class BillRoomDto
+	{
+        public int BillId { get; set; }
+
+        public string GuessName { get; set; } = null!;
+
+        public string GuessEmail { get; set; } = null!;
+
+        public string PhoneNumber { get; set; } = null!;
+
+        public int TotalPrice { get; set; }
+
+        public DateTime BuyTime { get; set; }
+
+        public int UserId { get; set; }
+
+        public int IdRoom { get; set; }
+    }
+}
+
