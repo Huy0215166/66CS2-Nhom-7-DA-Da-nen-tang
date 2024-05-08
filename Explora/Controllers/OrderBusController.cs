@@ -31,11 +31,11 @@ namespace Explora.Controllers
             var bus = context.TBus.FirstOrDefault(p => p.IdBus == dataInput.IdBus);
             if (bus == null)
             {
-                return NotFound("Không có chuyến xe này");
+                return NotFound(new { message = "Không có chuyến xe này" });
             }
             if (bus.EmptySlot < dataInput.Amount)
             {
-                return BadRequest("Chuyến xe không còn đủ chỗ");
+                return BadRequest(new { message = "Chuyến xe không còn đủ chỗ" });
             }
             List<TBusTicket> tickets = new List<TBusTicket>();
             foreach (var ticket in dataInput.createBusTicketDtos)
@@ -78,7 +78,7 @@ namespace Explora.Controllers
                 TBusTickets = b.TBusTickets,
                 User = b.User
             });
-            return Ok(bus);
+            return Ok(new { bus });
         }
         [HttpGet("Get-by-id-user")]
         [Authorize(Roles = "User")]
@@ -102,7 +102,7 @@ namespace Explora.Controllers
                 TBusTickets = b.TBusTickets,
                 
             });
-            return Ok(billbus);
+            return Ok(new { billbus });
         }
     }
 }

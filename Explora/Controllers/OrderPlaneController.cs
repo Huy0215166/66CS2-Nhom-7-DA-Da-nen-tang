@@ -31,11 +31,11 @@ namespace Explora.Controllers
             var plane = context.TPlanes.FirstOrDefault(p => p.IdPlane == dataInput.IdPlane);
             if(plane == null)
             {
-                return NotFound("Không có chuyến bay này");
+                return NotFound(new { message = "Không có chuyến bay này" });
             }
             if(plane.EmptySlot < dataInput.Amount)
             {
-                return BadRequest("Chuyến bay không còn đủ chỗ");
+                return BadRequest(new { message = "Chuyến bay không còn đủ chỗ" });
             }
             List<TPlaneTicket> tickets = new List<TPlaneTicket>();
             foreach(var ticket in dataInput.createPlaneTicketDtos)
@@ -64,7 +64,7 @@ namespace Explora.Controllers
                 UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0")
             });
             context.SaveChanges();
-            return Ok(order);
+            return Ok(new { order });
         }
         [HttpGet("Get-all")]
         [Authorize(Roles = "Admin")]
@@ -81,7 +81,7 @@ namespace Explora.Controllers
                 TPlaneTickets = p.TPlaneTickets,
                 User = p.User
             });
-            return Ok(plane);
+            return Ok(new { plane });
         }
         [HttpGet("Get-by-id-user")]
         [Authorize(Roles = "User")]
@@ -105,7 +105,7 @@ namespace Explora.Controllers
                 TPlaneTickets = p.TPlaneTickets,
 
             });
-            return Ok(billplane);
+            return Ok(new { billplane });
         }
 
     }

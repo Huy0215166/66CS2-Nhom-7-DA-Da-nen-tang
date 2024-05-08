@@ -59,7 +59,7 @@ namespace Explora.Controllers
                 IsDelete = a.IsDelete
 
             });
-            return Ok(airline);
+            return Ok(new  { arilines = airline });
         }
         [HttpGet("Get-by-id/{id}")]
         [Authorize(Roles = "Admin")]
@@ -70,7 +70,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(airline);
+            return Ok(new { airline });
         }
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "Admin")]
@@ -85,7 +85,7 @@ namespace Explora.Controllers
             airline.AddressAirline = dataUpdate.AddressAirline;
             airline.PhoneNumber = dataUpdate.PhoneNumber;
             context.SaveChanges();
-            return Ok(airline);
+            return Ok(new { airline });
         }
         [HttpDelete("Delete/{id}")]
         [Authorize(Roles = "Admin")]

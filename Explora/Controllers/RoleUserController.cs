@@ -44,7 +44,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại");
+                return BadRequest(new { message = "Không tồn tại" });
             }
             return Ok();
         }
@@ -58,7 +58,7 @@ namespace Explora.Controllers
                 RoleId = ru.RoleId,
                 UserId = ru.UserId
             });
-            return Ok(roleUser);
+            return Ok(new { roleUser });
         }
         [HttpGet("Get-by-id/{id}")]
         [Authorize(Roles = "Admin")]
@@ -69,7 +69,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(roleUser);
+            return Ok(new { roleUser });
         }
         [HttpPut("Update/{userId}")]
         [Authorize(Roles = "Admin")]
@@ -83,7 +83,7 @@ namespace Explora.Controllers
             user.RoleId = dataUpdate.RoleId;
             
             context.SaveChanges();
-            return Ok(user);
+            return Ok(new { user });
         }
 
     }

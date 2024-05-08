@@ -44,7 +44,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại nhà xe");
+                return BadRequest(new { message = "Không tồn tại nhà xe" });
             }
             return Ok();
         }
@@ -64,7 +64,7 @@ namespace Explora.Controllers
                 EmptySlot = b.EmptySlot,
                 IsDelete =b.IsDelete
             });
-            return Ok(bus);
+            return Ok(new { bus });
         }
         [HttpGet("Get-by-id/{id}")]
         public IActionResult GetBusById(int id)
@@ -74,7 +74,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(bus);
+            return Ok(new { bus });
         }
         [HttpPut("Update/{id}")]
         public IActionResult UpdateById(int id,UpdateBusDto dataUpdate)
@@ -87,7 +87,7 @@ namespace Explora.Controllers
             bus.StartTime = dataUpdate.Time;
             bus.Price = dataUpdate.Price;
             context.SaveChanges();
-            return Ok(bus);
+            return Ok(new { bus });
         }
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteById(int id)

@@ -41,7 +41,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại");
+                return BadRequest(new { message = "Không tồn tại" });
             }
             return Ok();
         }
@@ -54,7 +54,7 @@ namespace Explora.Controllers
                 RoleName = r.RoleName,
                 StatusRole = r.StatusRole
             });
-            return Ok(role);
+            return Ok(new { role });
         }
         [HttpGet("Get-by-id/{id}")]
         public IActionResult GetRoleById(int id)
@@ -64,7 +64,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(role);
+            return Ok(new { role });
         }
         [HttpPut("Update/{id}")]
         public IActionResult UpdateById(int id, UpdateRoleDto dataUpdate)
@@ -77,7 +77,7 @@ namespace Explora.Controllers
             role.RoleName = dataUpdate.RoleName;
             role.StatusRole = dataUpdate.StatusRole;
             context.SaveChanges();
-            return Ok(role);
+            return Ok(new { role });
         }
         
     }

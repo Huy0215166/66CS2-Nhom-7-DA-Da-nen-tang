@@ -48,7 +48,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại");
+                return BadRequest(new { message = "Không tồn tại" });
             }
             return Ok();
         }
@@ -65,7 +65,7 @@ namespace Explora.Controllers
                 Email = h.Email,
                 IsDelete = h.IsDelete
             });
-            return Ok(hotel);
+            return Ok(new { hotels = hotel });
         }
         [HttpGet("Get-by-id/{id}")]
         public IActionResult GetHotelById(int id)
@@ -75,7 +75,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(hotel);
+            return Ok(new { hotel });
         }
         [HttpGet("Get-by-id-hotel-owner")]
         [Authorize(Roles = "HotelOwner")]
@@ -98,7 +98,7 @@ namespace Explora.Controllers
                 IsDelete = h.IsDelete
 
             });
-            return Ok(hotels);
+            return Ok(new { hotels });
         }
         [HttpPut("Update/{id}")]
         public IActionResult UpdateById(int id, UpdateHotelDto dataUpdate)
@@ -112,7 +112,7 @@ namespace Explora.Controllers
             hotel.AddressHotel = dataUpdate.AddressHotel;
             hotel.PhoneNumber = dataUpdate.PhoneNumber;
             context.SaveChanges();
-            return Ok(hotel);
+            return Ok(new { hotel });
         }
         [HttpDelete("Delete/{id}")]
         public IActionResult DeleteById(int id)

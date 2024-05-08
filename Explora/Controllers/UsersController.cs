@@ -33,7 +33,7 @@ namespace Explora.Controllers
                 DateOfBirth = u.DateOfBirth,
                 UrlAvatar = u.UrlAvatar,
             });
-            return Ok(user);
+            return Ok(new { user });
         }
         [HttpGet("Get-by-ID/{id}")]
         public IActionResult GetUserById(int id)
@@ -43,7 +43,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(user);
+            return Ok(new { user });
         }
         [HttpPut("Update/{id}")]
         public IActionResult UpdateUserById(int id, UpdateUserDto dataUpdate)
@@ -58,7 +58,7 @@ namespace Explora.Controllers
             user.PasswordUser = dataUpdate.Password;
             user.UrlAvatar = dataUpdate.UrlAvatar;
             context.SaveChanges();
-            return Ok(user);
+            return Ok(new { user });
         }
 
     }

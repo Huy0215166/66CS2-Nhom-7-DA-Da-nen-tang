@@ -46,7 +46,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại");
+                return BadRequest(new { message = "Không tồn tại" });
             }
             return Ok();
         }
@@ -63,7 +63,7 @@ namespace Explora.Controllers
                 PhoneNumber = n.PhoneNumber,
                 IsDelete = n.IsDelete
             });
-            return Ok(nhaxe);
+            return Ok(new { nhaxe });
         }
         [HttpGet("Get-by-id/{id}")]
         [Authorize(Roles = "Admin")]
@@ -74,7 +74,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(nhaxe);
+            return Ok(new { nhaxe });
         }
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "Admin")]
@@ -89,7 +89,7 @@ namespace Explora.Controllers
             nhaxe.AddressNhaXe = dataUpdate.AddressNhaXe;
             nhaxe.PhoneNumber = dataUpdate.PhoneNumber;
             context.SaveChanges();
-            return Ok(nhaxe);
+            return Ok(new { nhaxe });
         }
         [HttpDelete("Delete/{id}")]
         [Authorize(Roles = "Admin")]

@@ -50,7 +50,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại hãng hàng không");
+                return BadRequest(new {message = "Không tồn tại hãng hàng không" });
             }
             
             return Ok();
@@ -83,7 +83,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(plane);
+            return Ok(new { plane });
         }
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "Admin")]
@@ -97,7 +97,7 @@ namespace Explora.Controllers
             plane.StartTime  = dataUpdate.Time;
             plane.Price = dataUpdate.Price;
             context.SaveChanges();
-            return Ok(plane);
+            return Ok(new { plane });
         }
         [HttpDelete("Delete/{id}")]
         [Authorize(Roles = "Admin")]

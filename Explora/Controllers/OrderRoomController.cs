@@ -32,11 +32,11 @@ namespace Explora.Controllers
             var room = context.TRooms.FirstOrDefault(p => p.IdRoom == dataInput.IdRoom);
             if (room == null)
             {
-                return NotFound("Không có phòng này");
+                return NotFound(new { message = "Không có phòng này" });
             }
             if (room.EmptySlot == 0)
             {
-                return BadRequest("Đã hết phòng");
+                return BadRequest(new { message = "Đã hết phòng" });
             }
 
             var order = context.TBillRooms.Add(new TBillRoom
@@ -70,7 +70,7 @@ namespace Explora.Controllers
                 IdRoom = r.IdRoom,
                 UserId = r.UserId
             });
-            return Ok(room);
+            return Ok(new { room });
         }
         [HttpGet("Get-by-id-user")]
         [Authorize(Roles = "User")]
@@ -93,7 +93,7 @@ namespace Explora.Controllers
                 IdRoom = r.IdRoom,
                 UserId = r.UserId
             });
-            return Ok(billroom);
+            return Ok(new { billroom });
         }
         [HttpPost("Check-out")]
         [Authorize(Roles = "HotelOwner")]
@@ -130,7 +130,7 @@ namespace Explora.Controllers
                 IdRoom = r.IdRoom,
                 UserId = r.UserId
             });
-            return Ok(billroom);
+            return Ok(new { billroom });
         }
     }
 }

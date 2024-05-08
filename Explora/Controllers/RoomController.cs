@@ -49,7 +49,7 @@ namespace Explora.Controllers
             }
             catch (DbUpdateException)
             {
-                return BadRequest("Không tồn tại khách sạn");
+                return BadRequest(new { message = "Không tồn tại khách sạn" });
             }
             return Ok();
         }
@@ -67,7 +67,7 @@ namespace Explora.Controllers
                 ImageUrl = r.ImageUrl,
                 IsDelete = r.IsDelete
             });
-            return Ok(room);
+            return Ok(new { room });
         }
         [HttpGet("Get-by-id/{id}")]
         [Authorize(Roles = "HotelOwner")]
@@ -78,7 +78,7 @@ namespace Explora.Controllers
             {
                 return NotFound();
             }
-            return Ok(room);
+            return Ok(new { room });
         }
         [HttpGet("Get-all-room-by-hotel/{hotelId}")]
         [Authorize(Roles = "HotelOwner")]
@@ -105,7 +105,7 @@ namespace Explora.Controllers
                 ImageUrl = r.ImageUrl,
                 IsDelete = r.IsDelete
             });
-            return Ok(room);
+            return Ok(new { room });
 
 
         }
