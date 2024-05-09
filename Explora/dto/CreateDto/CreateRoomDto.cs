@@ -14,7 +14,7 @@ namespace Explora.dto
         public int Slot { get; set; }
         [Required(ErrorMessage = "Loại phòng không được bỏ trống ")]
         public string Type { get; set; }
-        public string Image_Url { get; set; }
+        public IFormFile Image { get; set; }
         
     }
 }

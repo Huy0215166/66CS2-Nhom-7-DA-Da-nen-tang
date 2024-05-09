@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
-
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,15 +24,34 @@ namespace Explora.Controllers
     public class RoomController : Controller
     {
         private ExploraContext context;
-        public RoomController(ExploraContext context)
+        private Cloudinary cloudinary;
+        public RoomController(ExploraContext context,IConfiguration configuration )
         {
             this.context = context;
+            cloudinary = new Cloudinary(configuration["Cloudinary:Url"]);
         }
+        
         // GET: api/values
         [HttpPost("Create")]
         [Authorize(Roles = "HotelOwner")]
-        public IActionResult CreateRoom(CreateRoomDto inputData)
+        [Consumes("multipart/form-data")]
+        public IActionResult CreateRoom([FromForm]CreateRoomDto inputData)
         {
+            ImageUploadResult? uploadResult = null;  
+            if(inputData.Image != null)
+            {
+                using ( var filestream = inputData.Image.OpenReadStream())
+                {
+                    var uploadParam = new ImageUploadParams
+                    {
+                        File = new FileDescription(inputData.Image.FileName, filestream)
+                        
+                    };
+                    uploadResult = cloudinary.Upload(uploadParam);
+
+                }
+            }
+            
             context.TRooms.Add(new TRoom
             { 
                 
@@ -40,7 +60,7 @@ namespace Explora.Controllers
                 Slot = inputData.Slot,
                 EmptySlot = inputData.Slot,
                 TypeRoom = inputData.Type,
-                ImageUrl = inputData.Image_Url,
+                ImageUrl = uploadResult?.SecureUrl.AbsoluteUri ?? "",
                 IsDelete=0
             });;
             try
@@ -111,17 +131,37 @@ namespace Explora.Controllers
         }
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "HotelOwner")]
-        public IActionResult UpdateById(int id, UpdateRoomDto dataUpdate)
+        [Consumes("multipart/form-data")]
+        public IActionResult UpdateById(int id,[FromForm] UpdateRoomDto dataUpdate)
         {
+            ImageUploadResult? uploadResult = null;
+            if (dataUpdate.Image != null)
+            {
+                using (var filestream = dataUpdate.Image.OpenReadStream())
+                {
+                    var uploadParam = new ImageUploadParams
+                    {
+                        File = new FileDescription(dataUpdate.Image.FileName, filestream)
+
+                    };
+                    uploadResult = cloudinary.Upload(uploadParam);
+
+                }
+            }
             var room = context.TRooms.FirstOrDefault(r => r.IdRoom == id);
             if (room == null)
             {
                 return NotFound();
             }
+            
            
             room.Price = dataUpdate.Price;
             
-            room.ImageUrl = dataUpdate.Image_Url;
+            if(uploadResult != null)
+            {
+                room.ImageUrl = uploadResult?.SecureUrl.AbsoluteUri ?? "";
+
+            }
             context.SaveChanges();
             return Ok(room);
         }

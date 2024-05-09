@@ -56,7 +56,6 @@ namespace Explora.Controllers
             user.UserName = dataUpdate.Name;
             user.DateOfBirth = dataUpdate.DateOfBirth;
             user.PasswordUser = dataUpdate.Password;
-            user.UrlAvatar = dataUpdate.UrlAvatar;
             context.SaveChanges();
             return Ok(new { user });
         }
