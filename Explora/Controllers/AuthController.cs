@@ -61,8 +61,7 @@ namespace Explora.Controllers
         [HttpPost("Login")]
         public IActionResult Login(LoginDto inputData)
         {
-            var user = context.TUsers.Include(ru => ru.TRoleUsers).ThenInclude(r => r.Role).
-                FirstOrDefault(u => u.Email == inputData.Email && u.PasswordUser == inputData.Password);
+            var user = context.TUsers.FirstOrDefault(u => u.Email == inputData.Email && u.PasswordUser == inputData.Password);
 
             if (user == null)
             {
@@ -71,8 +70,9 @@ namespace Explora.Controllers
 
             return Ok(new
             {
+                user = user,
                 accessToken = authen.jwtToken(user, _configuration)
-            });
+            }) ;
         }
         [HttpGet("Confirm-email")]
         public IActionResult ConfirmEmail(string token)

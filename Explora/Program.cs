@@ -44,7 +44,7 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 builder.Services.AddDbContext<ExploraContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("AzureConnection")));
 builder.Services.AddScoped<AuthenticationService>(
     );
 builder.Services.AddAuthentication(options =>

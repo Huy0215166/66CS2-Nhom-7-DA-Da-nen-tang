@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Explora.dto;
 using Explora.data;
 using Explora.Entity;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -58,6 +59,14 @@ namespace Explora.Controllers
             user.PasswordUser = dataUpdate.Password;
             context.SaveChanges();
             return Ok(new { user });
+        }
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetUserByToken()
+        {
+            var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
+            var user = context.TUsers.FirstOrDefault(u => u.UserId == UserId);
+            return Ok(user);
         }
 
     }
