@@ -1,4 +1,6 @@
 ﻿using System;
+using Explora.Entity;
+
 namespace Explora.dto
 {
 	public class BillRoomDto
@@ -18,6 +20,8 @@ namespace Explora.dto
         public int UserId { get; set; }
 
         public int IdRoom { get; set; }
+        
+        public TRoom IdRoomNavigation { get; set; } = new TRoom();
     }
 }
 

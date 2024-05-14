@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Data;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Explora.dto.FindDto;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -37,14 +38,19 @@ namespace Explora.Controllers
         [Consumes("multipart/form-data")]
         public IActionResult CreateRoom([FromForm]CreateRoomDto inputData)
         {
-            ImageUploadResult? uploadResult = null;  
-            if(inputData.Image != null)
+            var hotel = context.THotels.FirstOrDefault(h => h.IdHotel == inputData.IdHotel);
+            if ( hotel == null || hotel.IsDelete != 0)
             {
-                using ( var filestream = inputData.Image.OpenReadStream())
+                return NotFound();
+            }
+            ImageUploadResult? uploadResult = null;  
+            if(inputData.ImageUrl != null)
+            {
+                using ( var filestream = inputData.ImageUrl.OpenReadStream())
                 {
                     var uploadParam = new ImageUploadParams
                     {
-                        File = new FileDescription(inputData.Image.FileName, filestream)
+                        File = new FileDescription(inputData.ImageUrl.FileName, filestream)
                         
                     };
                     uploadResult = cloudinary.Upload(uploadParam);
@@ -59,7 +65,7 @@ namespace Explora.Controllers
                 Price = inputData.Price,
                 Slot = inputData.Slot,
                 EmptySlot = inputData.Slot,
-                TypeRoom = inputData.Type,
+                TypeRoom = inputData.TypeRoom,
                 ImageUrl = uploadResult?.SecureUrl.AbsoluteUri ?? "",
                 IsDelete=0
             });;
@@ -76,7 +82,7 @@ namespace Explora.Controllers
         [HttpGet("Get-all")]
         public IActionResult GetAllRoom()
         {
-            var room = context.TRooms.Select(r => new RoomDto
+            var room = context.TRooms.Where(r => r.IsDelete == 0).Select(r => new RoomDto
             {
                 IdRoom = r.IdRoom,  
                 IdHotel=r.IdHotel,
@@ -89,12 +95,12 @@ namespace Explora.Controllers
             });
             return Ok(new { room });
         }
+        
         [HttpGet("Get-by-id/{id}")]
-        [Authorize(Roles = "HotelOwner")]
         public IActionResult GetRoomById(int id)
         {
             var room = context.TRooms.FirstOrDefault(r => r.IdRoom == id);
-            if (room == null)
+            if (room == null || room.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -106,7 +112,7 @@ namespace Explora.Controllers
         {
             var userId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
             var hotel = context.THotels.FirstOrDefault(h => h.IdHotel == hotelId);
-            if (hotel == null)
+            if (hotel == null || hotel.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -114,7 +120,7 @@ namespace Explora.Controllers
             {
                 return Forbid("Không phải khách sạn của bạn");
             }
-            var room = context.TRooms.Where(r => r.IdHotel == hotelId).Select(r => new RoomDto
+            var room = context.TRooms.Where(r => r.IdHotel == hotelId && r.IsDelete ==0).Select(r => new RoomDto
             {
                 IdRoom = r.IdRoom,
                 IdHotel = r.IdHotel,
@@ -149,7 +155,7 @@ namespace Explora.Controllers
                 }
             }
             var room = context.TRooms.FirstOrDefault(r => r.IdRoom == id);
-            if (room == null)
+            if (room == null || room.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -170,7 +176,7 @@ namespace Explora.Controllers
         public IActionResult DeleteById(int id)
         {
             var room = context.TRooms.FirstOrDefault(r => r.IdRoom == id);
-            if (room == null)
+            if (room == null || room.IsDelete != 0)
             {
                 return NotFound();
             }

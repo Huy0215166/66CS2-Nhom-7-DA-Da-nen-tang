@@ -29,7 +29,7 @@ namespace Explora.Controllers
         public IActionResult CreateOrder([FromBody] CreateOrderBusDto dataInput)
         {
             var bus = context.TBus.FirstOrDefault(p => p.IdBus == dataInput.IdBus);
-            if (bus == null)
+            if (bus == null || bus.IsDelete != 0)
             {
                 return NotFound(new { message = "Không có chuyến xe này" });
             }
@@ -67,7 +67,8 @@ namespace Explora.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult GetAllCreateOrder()
         {
-            var bus = context.TOrderBus.Include(b => b.TBusTickets).Include(b => b.User).Select(b => new OrderBusDto
+            var bus = context.TOrderBus.Include(b => b.TBusTickets).Include(b => b.User).
+                Include(b=>b.IdBusNavigation).ThenInclude(b=>b.IdNhaXeNavigation).Select(b => new OrderBusDto
             {
                 OrderId = b.OrderId,
                 Amount = b.Amount,
@@ -75,9 +76,10 @@ namespace Explora.Controllers
                 BuyTime = b.BuyTime,
                 IdBus = b.IdBus,
                 UserId = b.UserId,
+                User = b.User,
                 TBusTickets = b.TBusTickets,
-                User = b.User
-            });
+                IdBusNavigation = b.IdBusNavigation
+                });
             return Ok(new { bus });
         }
         [HttpGet("Get-by-id-user")]
@@ -86,7 +88,8 @@ namespace Explora.Controllers
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
 
-            var bill = context.TOrderBus.Include(b => b.TBusTickets).Include(b => b.User).Where(b => b.UserId == UserId).ToList();
+            var bill = context.TOrderBus.Include(b => b.TBusTickets).Include(b => b.User).
+                Include(b => b.IdBusNavigation).ThenInclude(b => b.IdNhaXeNavigation).Where(b => b.UserId == UserId).ToList();
             if (bill == null)
             {
                 return NotFound();
@@ -100,7 +103,7 @@ namespace Explora.Controllers
                 IdBus = b.IdBus,
                 UserId = b.UserId,
                 TBusTickets = b.TBusTickets,
-                
+                IdBusNavigation = b.IdBusNavigation
             });
             return Ok(new { billbus });
         }

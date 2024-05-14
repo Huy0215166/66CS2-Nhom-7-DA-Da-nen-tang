@@ -7,6 +7,7 @@ using Explora.dto;
 using Explora.data;
 using Explora.Entity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,33 +24,46 @@ namespace Explora.Controllers
         }
         // GET: api/values
         [HttpGet("Get-all")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetAllUser()
         {
-            var user = context.TUsers.Select(u => new UserDto
+            var user = context.TUsers.Include(u => u.TRoleUsers).ThenInclude(r => r.Role).Select(u => new UserDto
             {
-                Id = u.UserId,
-                Name = u.UserName,
+                UserId = u.UserId,
+                UserName = u.UserName,
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 DateOfBirth = u.DateOfBirth,
                 UrlAvatar = u.UrlAvatar,
+                Role = u.Role,
             });
             return Ok(new { user });
         }
-        [HttpGet("Get-by-ID/{id}")]
-        public IActionResult GetUserById(int id)
+        [HttpGet("Get-by-token")]
+        public IActionResult GetUserById()
         {
-            var user = context.TUsers.FirstOrDefault(u => u.UserId == id);
+            var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
+            var user = context.TUsers.Include(u => u.TRoleUsers).ThenInclude(r => r.Role).FirstOrDefault(u => u.UserId == UserId);
             if (user == null)
             {
                 return NotFound();
             }
-            return Ok(new { user });
+            return Ok(new UserDto
+            {
+                UserId = user.UserId,
+                PhoneNumber = user.PhoneNumber,
+                Email = user.Email,
+                UserName = user.UserName,
+                DateOfBirth = user.DateOfBirth,
+                UrlAvatar = user.UrlAvatar,
+                Role = user.TRoleUsers.ToList()[0].Role.RoleName,
+            });
         }
-        [HttpPut("Update/{id}")]
-        public IActionResult UpdateUserById(int id, UpdateUserDto dataUpdate)
+        [HttpPut("Update")]
+        public IActionResult UpdateUserByToken(UpdateUserDto dataUpdate)
         {
-            var user = context.TUsers.FirstOrDefault(u => u.UserId == id);
+            var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
+            var user = context.TUsers.Include(u => u.TRoleUsers).ThenInclude(r => r.Role).FirstOrDefault(u => u.UserId == UserId);
             if ( user == null)
             {
                 return NotFound();
@@ -58,15 +72,35 @@ namespace Explora.Controllers
             user.DateOfBirth = dataUpdate.DateOfBirth;
             user.PasswordUser = dataUpdate.Password;
             context.SaveChanges();
-            return Ok(new { user });
+            return Ok(new UserDto
+            {
+                UserId = user.UserId,
+                PhoneNumber = user.PhoneNumber,
+                Email = user.Email,
+                UserName = user.UserName,
+                DateOfBirth = user.DateOfBirth,
+                UrlAvatar = user.UrlAvatar,
+                Role = user.TRoleUsers.ToList()[0].Role.RoleName,
+            });
         }
         [HttpGet]
         [Authorize]
         public IActionResult GetUserByToken()
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
-            var user = context.TUsers.FirstOrDefault(u => u.UserId == UserId);
-            return Ok(user);
+            var user = context.TUsers.Include(u => u.TRoleUsers).ThenInclude(r => r.Role).FirstOrDefault(u => u.UserId == UserId);
+            return Ok(new UserDto
+            {
+                UserId = user.UserId,
+                PhoneNumber = user.PhoneNumber,
+                Email = user.Email,
+                UserName = user.UserName,
+                DateOfBirth = user.DateOfBirth,
+                UrlAvatar = user.UrlAvatar,
+                Role = user.TRoleUsers.ToList()[0].Role.RoleName,
+            });
+            
+           
         }
 
     }

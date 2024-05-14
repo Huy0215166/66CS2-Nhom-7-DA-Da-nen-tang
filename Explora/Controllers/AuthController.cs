@@ -41,9 +41,10 @@ namespace Explora.Controllers
                 UserName = inputData.Name,
                 Email = inputData.Email,
                 PhoneNumber = inputData.PhoneNumber,
-                PasswordUser = inputData.Password,
+                PasswordUser = inputData.PasswordUser,
                 DateOfBirth = inputData.DateOfBirth,
-                UrlAvatar = inputData.UrlAvatar
+                UrlAvatar = inputData.UrlAvatar,
+                
             };
             context.TUsers.Add(user);
             context.SaveChanges();
@@ -61,15 +62,17 @@ namespace Explora.Controllers
         [HttpPost("Login")]
         public IActionResult Login(LoginDto inputData)
         {
-            var user = context.TUsers.FirstOrDefault(u => u.Email == inputData.Email && u.PasswordUser == inputData.Password);
-
+            var user = context.TUsers.Include(u => u.TRoleUsers).ThenInclude(r => r.Role).FirstOrDefault(u => u.Email == inputData.Email && u.PasswordUser == inputData.Password);
+            
             if (user == null)
             {
                 return BadRequest(new {message = "Email hoặc mật khẩu không chính xác" });
             }
-
+            
+            
             return Ok(new
             {
+                
                 user = user,
                 accessToken = authen.jwtToken(user, _configuration)
             }) ;
@@ -119,7 +122,7 @@ namespace Explora.Controllers
             var user = context.TUsers.FirstOrDefault(u => u.Email == dataUpdate.Email);
             if (user.ResetPasswordToken == dataUpdate.token)
             {
-                user.PasswordUser = dataUpdate.Password;
+                user.PasswordUser = dataUpdate.PasswordUser;
                 context.SaveChanges();
                 return Ok();
             }

@@ -17,7 +17,7 @@ namespace Explora.dto
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
         [Required(ErrorMessage = "Mật khẩu không được bỏ trống")]
-        public string Password { get; set; }
+        public string PasswordUser { get; set; }
         public string UrlAvatar { get; set; }
     }
 }

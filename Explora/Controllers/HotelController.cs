@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Explora.dto.FindDto;
 
 
 
@@ -55,7 +56,7 @@ namespace Explora.Controllers
         [HttpGet("Get-all")]
         public IActionResult GetAllHotel()
         {
-            var hotel = context.THotels.Select(h => new HotelDto
+            var hotel = context.THotels.Where(h => h.IsDelete == 0).Select(h => new HotelDto
             {
                 IdHotel = h.IdHotel,
                 HotelName = h.HotelName,
@@ -70,19 +71,38 @@ namespace Explora.Controllers
         [HttpGet("Get-by-id/{id}")]
         public IActionResult GetHotelById(int id)
         {
-            var hotel = context.THotels.FirstOrDefault(h => h.IdHotel == id);
-            if (hotel == null)
+            var hotel = context.THotels.Include(h => h.TRooms).FirstOrDefault(h => h.IdHotel == id);
+            if (hotel == null || hotel.IsDelete != 0)
             {
                 return NotFound();
             }
             return Ok(new { hotel });
+        }
+        [HttpGet("Get-by-keyword")]
+        public IActionResult GetHotelByKeyword([FromQuery] FindHotelDto inputData)
+        {
+            
+            var query = context.THotels.Where(h => h.AddressHotel.Contains(inputData.AddressHotel)).
+                        Select(h => new HotelDto
+                        {
+                            IdHotel = h.IdHotel,
+                            HotelName = h.HotelName,
+                            AddressHotel = h.AddressHotel,
+                            PhoneNumber = h.PhoneNumber,
+                            UserId = h.UserId,
+                            Email = h.Email,
+                            IsDelete = h.IsDelete
+                        });
+            var result = query.ToList();
+            return Ok(new { result });
+
         }
         [HttpGet("Get-by-id-hotel-owner")]
         [Authorize(Roles = "HotelOwner")]
         public IActionResult GetByIdUser()
         {
             var HotelOwner = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
-            var hotel = context.THotels.Where(b => b.UserId == HotelOwner).ToList();
+            var hotel = context.THotels.Where(b => b.UserId == HotelOwner && b.IsDelete == 0).ToList();
             if (hotel == null)
             {
                 return NotFound();
@@ -104,7 +124,7 @@ namespace Explora.Controllers
         public IActionResult UpdateById(int id, UpdateHotelDto dataUpdate)
         {
             var hotel = context.THotels.FirstOrDefault(r => r.IdHotel == id);
-            if (hotel == null)
+            if (hotel == null || hotel.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -118,7 +138,7 @@ namespace Explora.Controllers
         public IActionResult DeleteById(int id)
         {
             var hotel = context.THotels.FirstOrDefault(r => r.IdHotel == id);
-            if (hotel == null)
+            if (hotel == null || hotel.IsDelete != 0)
             {
                 return NotFound();
             }

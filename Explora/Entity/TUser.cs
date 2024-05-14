@@ -24,6 +24,17 @@ public partial class TUser
     public string? EmailConfirmToken { get; set; }
 
     public string? ResetPasswordToken { get; set; }
+    public string Role
+    {
+        get
+        {
+            if (TRoleUsers.ToList().Count >0 )
+            {
+                return TRoleUsers.ToList()[0].Role.RoleName;
+            }
+            return null; }
+        
+    }
 
     public virtual ICollection<TBillRoom> TBillRooms { get; set; } = new List<TBillRoom>();
 

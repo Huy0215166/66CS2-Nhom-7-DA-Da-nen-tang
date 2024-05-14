@@ -30,7 +30,7 @@ namespace Explora.Controllers
         public IActionResult CreateOrder([FromBody] CreateBillRoomDto dataInput)
         {
             var room = context.TRooms.FirstOrDefault(p => p.IdRoom == dataInput.IdRoom);
-            if (room == null)
+            if (room == null || room.IsDelete != 0 )
             {
                 return NotFound(new { message = "Không có phòng này" });
             }
@@ -59,7 +59,7 @@ namespace Explora.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult GetAllCreateOrder()
         {
-            var room = context.TBillRooms.Select(r => new BillRoomDto
+            var room = context.TBillRooms.Include(r => r.IdRoomNavigation).ThenInclude(b => b.IdHotelNavigation).Select(r => new BillRoomDto
             {
                 BillId = r.BillId,
                 GuessName = r.GuessName,
@@ -68,7 +68,9 @@ namespace Explora.Controllers
                 TotalPrice = r.TotalPrice,
                 BuyTime = r.BuyTime,
                 IdRoom = r.IdRoom,
-                UserId = r.UserId
+                UserId = r.UserId,
+                IdRoomNavigation = r.IdRoomNavigation,
+                
             });
             return Ok(new { room });
         }
@@ -77,7 +79,7 @@ namespace Explora.Controllers
         public IActionResult GetByIdUser()
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
-            var bill = context.TBillRooms.Where(b => b.UserId == UserId).ToList();
+            var bill = context.TBillRooms.Include(b => b.IdRoomNavigation).ThenInclude(b=>b.IdHotelNavigation).Where(b => b.UserId == UserId).ToList();
             if (bill == null)
             {
                 return NotFound();
@@ -91,7 +93,8 @@ namespace Explora.Controllers
                 TotalPrice = r.TotalPrice,
                 BuyTime = r.BuyTime,
                 IdRoom = r.IdRoom,
-                UserId = r.UserId
+                UserId = r.UserId,
+                IdRoomNavigation = r.IdRoomNavigation
             });
             return Ok(new { billroom });
         }
@@ -118,7 +121,7 @@ namespace Explora.Controllers
             {
                 return Forbid("Không phải khách sạn của bạn");
             }
-            var bill = context.TBillRooms.Include(b => b.IdRoomNavigation).Where(b => b.IdRoomNavigation.IdHotel == id).ToList();
+            var bill = context.TBillRooms.Include(b => b.IdRoomNavigation).ThenInclude(b => b.IdHotelNavigation).Where(b => b.IdRoomNavigation.IdHotel == id).ToList();
             var billroom = bill.Select(r => new BillRoomDto
             {
                 BillId = r.BillId,
@@ -128,7 +131,9 @@ namespace Explora.Controllers
                 TotalPrice = r.TotalPrice,
                 BuyTime = r.BuyTime,
                 IdRoom = r.IdRoom,
-                UserId = r.UserId
+                UserId = r.UserId,
+                IdRoomNavigation = r.IdRoomNavigation
+
             });
             return Ok(new { billroom });
         }

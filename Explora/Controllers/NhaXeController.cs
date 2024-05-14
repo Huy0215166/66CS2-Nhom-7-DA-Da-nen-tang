@@ -54,7 +54,7 @@ namespace Explora.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult GetAllNhaXe()
         {
-            var nhaxe = context.TNhaXes.Select(n => new NhaXeDto
+            var nhaxe = context.TNhaXes.Where(n => n.IsDelete == 0).Select(n => new NhaXeDto
             {
                 IdNhaXe = n.IdNhaXe,
                 NhaXeName = n.NhaXeName,
@@ -70,7 +70,7 @@ namespace Explora.Controllers
         public IActionResult GetNhaXeById(int id)
         {
             var nhaxe  = context.TNhaXes.FirstOrDefault(n => n.IdNhaXe == id);
-            if (nhaxe == null)
+            if (nhaxe == null || nhaxe.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -81,7 +81,7 @@ namespace Explora.Controllers
         public IActionResult UpdateById(int id, UpdateNhaXeDto dataUpdate)
         {
             var nhaxe = context.TNhaXes.FirstOrDefault(n => n.IdNhaXe == id);
-            if (nhaxe == null)
+            if (nhaxe == null || nhaxe.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -96,7 +96,7 @@ namespace Explora.Controllers
         public IActionResult DeleteById(int id)
         {
             var nhaxe = context.TNhaXes.FirstOrDefault(n => n.IdNhaXe == id);
-            if (nhaxe == null)
+            if (nhaxe == null || nhaxe.IsDelete != 0)
             {
                 return NotFound();
             }

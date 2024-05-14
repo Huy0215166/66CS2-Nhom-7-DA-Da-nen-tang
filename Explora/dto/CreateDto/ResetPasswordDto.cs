@@ -12,7 +12,7 @@ namespace Explora.dto
         public string token { get; set; }
         [Required(ErrorMessage = "Password không được bỏ trống")]
 
-        public string Password { get; set; }
+        public string PasswordUser { get; set; }
 	}
 }
 

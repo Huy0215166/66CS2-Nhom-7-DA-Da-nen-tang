@@ -18,6 +18,7 @@ namespace Explora.dto
         public int IdPlane { get; set; }
 
         public ICollection<TPlaneTicket> TPlaneTickets { get; set; } = new List<TPlaneTicket>();
+        public TPlane IdPlaneNavigation { get; set; } = new TPlane();
 
         public TUser User { get; set; } = null!;
     }

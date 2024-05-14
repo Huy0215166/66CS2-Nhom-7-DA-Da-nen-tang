@@ -12,6 +12,7 @@ using Explora.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using Explora.dto.FindDto;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Explora.Controllers
@@ -30,15 +31,19 @@ namespace Explora.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult CreatePlane(CreatePlaneDto inputData)
         {
-            
+            var airline = context.TAirlines.FirstOrDefault(n => n.IdAirline == inputData.IdAirline);
+            if (airline == null || airline.IsDelete != 0)
+            {
+                return NotFound();
+            }
             context.TPlanes.Add(new TPlane
             {
                 
-                PlaneName = inputData.Name,
+                PlaneName = inputData.PlaneName,
                 IdAirline = inputData.IdAirline,
-                StartPoint = inputData.Start,
-                EndPoint = inputData.End,
-                StartTime = inputData.Time,
+                StartPoint = inputData.StartPoint,
+                EndPoint = inputData.EndPoint,
+                StartTime = inputData.StartTime,
                 Price = inputData.Price,
                 Slot = inputData.Slot,
                 EmptySlot = inputData.Slot,
@@ -56,45 +61,68 @@ namespace Explora.Controllers
             return Ok();
             }
         [HttpGet("Get-all")]
-        [Authorize(Roles = "Admin")]
         public IActionResult GetAllPlane()
         {
-            var plane = context.TPlanes.Select(p => new PlaneDto
+            var plane = context.TPlanes.Where(p => p.IsDelete == 0).Include(p => p.IdAirlineNavigation).Select(p => new PlaneDto
             {
-                Id = p.IdPlane,
+                IdPlane = p.IdPlane,
                 IdAirline =p.IdAirline,
-                Name = p.PlaneName,
-                Start = p.StartPoint,
-                End = p.EndPoint,
-                Time = p.StartTime,
+                PlaneName = p.PlaneName,
+                StartPoint = p.StartPoint,
+                EndPoint = p.EndPoint,
+                StartTime = p.StartTime,
                 Price = p.Price,
                 Slot = p.Slot,
-                EmptySlot = p.EmptySlot
-
+                EmptySlot = p.EmptySlot,
+                IdAirlineNavigation =p.IdAirlineNavigation
             }) ;
             return Ok(plane);
         }
         [HttpGet("Get-by-id/{id}")]
-        [Authorize(Roles = "Admin")]
         public IActionResult GetPlaneById(int id)
         {
-            var plane = context.TPlanes.FirstOrDefault(p => p.IdPlane == id);
-            if (plane == null)
+            var plane = context.TPlanes.Include(p => p.IdAirlineNavigation).FirstOrDefault(p => p.IdPlane == id);
+            if (plane == null || plane.IsDelete != 0)
             {
                 return NotFound();
             }
             return Ok(new { plane });
+        }
+        [HttpGet("Get-by-keyword")]
+        public IActionResult GetPlaneByKeyword([FromQuery] FindDto inputData)
+        {
+            var from = inputData.StartTime;
+            var to = from.AddDays(1);
+            var now = DateTime.Now;
+            var query = context.TPlanes.Where(p => p.StartPoint == inputData.StartPoint
+                        && p.EndPoint == inputData.EndPoint && (p.StartTime >= from && p.StartTime <= to && p.StartTime > now)).
+                        Include(p => p.IdAirlineNavigation).Select(p => new PlaneDto
+                        {
+                            IdPlane = p.IdPlane,
+                            IdAirline = p.IdAirline,
+                            PlaneName = p.PlaneName,
+                            StartPoint = p.StartPoint,
+                            EndPoint = p.EndPoint,
+                            StartTime = p.StartTime,
+                            Price = p.Price,
+                            Slot = p.Slot,
+                            EmptySlot = p.EmptySlot,
+                            IdAirlineNavigation = p.IdAirlineNavigation
+                        });
+            var result = query.ToList();
+            return Ok(new { result });
+
         }
         [HttpPut("Update/{id}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateById(int id, UpdatePlaneDto dataUpdate)
         {
             var plane = context.TPlanes.FirstOrDefault(p => p.IdPlane == id);
-            if (plane == null)
+            if (plane == null || plane.IsDelete != 0)
             {
                 return NotFound();
             }
-            plane.StartTime  = dataUpdate.Time;
+            plane.StartTime  = dataUpdate.StartTime;
             plane.Price = dataUpdate.Price;
             context.SaveChanges();
             return Ok(new { plane });
@@ -104,7 +132,7 @@ namespace Explora.Controllers
         public IActionResult DeleteById(int id)
         {
             var plane = context.TPlanes.FirstOrDefault(p => p.IdPlane == id);
-            if (plane == null)
+            if (plane == null || plane.IsDelete != 0)
             {
                 return NotFound();
             }

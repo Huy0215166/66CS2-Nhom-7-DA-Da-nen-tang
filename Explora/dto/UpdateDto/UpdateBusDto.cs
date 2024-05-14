@@ -5,7 +5,7 @@ namespace Explora.dto
 	{
         public int Price { get; set; }
        
-        public DateTime Time { get; set; }
+        public DateTime StartTime { get; set; }
     }
 }
 

@@ -18,6 +18,7 @@ namespace Explora.dto
         public int IdBus { get; set; }
 
         public ICollection<TBusTicket> TBusTickets { get; set; } = new List<TBusTicket>();
+        public TBu IdBusNavigation { get; set; } = new TBu();
 
         public TUser User { get; set; } = null!;
     }

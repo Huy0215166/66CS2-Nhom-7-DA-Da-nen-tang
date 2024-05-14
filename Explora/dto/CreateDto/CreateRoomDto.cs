@@ -13,8 +13,8 @@ namespace Explora.dto
         [Required(ErrorMessage = "Số lượng còn lại không được bỏ trống ")]
         public int Slot { get; set; }
         [Required(ErrorMessage = "Loại phòng không được bỏ trống ")]
-        public string Type { get; set; }
-        public IFormFile Image { get; set; }
+        public string TypeRoom { get; set; }
+        public IFormFile ImageUrl { get; set; }
         
     }
 }

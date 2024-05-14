@@ -29,7 +29,7 @@ namespace Explora.Controllers
         public IActionResult CreateOrder([FromBody] CreateOrderPlaneDto dataInput)
         {
             var plane = context.TPlanes.FirstOrDefault(p => p.IdPlane == dataInput.IdPlane);
-            if(plane == null)
+            if(plane == null || plane.IsDelete != 0)
             {
                 return NotFound(new { message = "Không có chuyến bay này" });
             }
@@ -64,13 +64,14 @@ namespace Explora.Controllers
                 UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0")
             });
             context.SaveChanges();
-            return Ok(new { order });
+            return Ok();
         }
         [HttpGet("Get-all")]
         [Authorize(Roles = "Admin")]
         public IActionResult GetAllCreateOrder()
         {
-            var plane = context.TOrderPlanes.Include(p => p.TPlaneTickets).Include(p => p.User).Select(p => new OrderPlaneDto
+            var plane = context.TOrderPlanes.Include(p => p.TPlaneTickets).Include(p => p.User).
+                Include(p => p.IdPlaneNavigation).ThenInclude(p=> p.IdAirlineNavigation).Select(p => new OrderPlaneDto
             {
                 OrderId = p.OrderId,
                 Amount = p.Amount,
@@ -78,9 +79,10 @@ namespace Explora.Controllers
                 BuyTime = p.BuyTime,
                 IdPlane = p.IdPlane,
                 UserId = p.UserId,
+                User = p.User,
                 TPlaneTickets = p.TPlaneTickets,
-                User = p.User
-            });
+                IdPlaneNavigation = p.IdPlaneNavigation
+                });
             return Ok(new { plane });
         }
         [HttpGet("Get-by-id-user")]
@@ -89,7 +91,8 @@ namespace Explora.Controllers
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
 
-            var bill = context.TOrderPlanes.Include(p => p.TPlaneTickets).Include(p => p.User).Where(p => p.UserId == UserId).ToList();
+            var bill = context.TOrderPlanes.Include(p => p.TPlaneTickets).Include(p => p.User).
+                Include(p => p.IdPlaneNavigation).ThenInclude(p => p.IdAirlineNavigation).Where(p => p.UserId == UserId).ToList();
             if (bill == null)
             {
                 return NotFound();
@@ -103,7 +106,7 @@ namespace Explora.Controllers
                 IdPlane = p.IdPlane,
                 UserId = p.UserId,
                 TPlaneTickets = p.TPlaneTickets,
-
+                IdPlaneNavigation = p.IdPlaneNavigation
             });
             return Ok(new { billplane });
         }

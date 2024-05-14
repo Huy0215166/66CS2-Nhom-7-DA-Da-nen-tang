@@ -34,10 +34,10 @@ namespace Explora.Controllers
 
             context.TAirlines.Add(new TAirline
             {
-                AirlineName=inputData.AirlineName,
+                AirlineName = inputData.AirlineName,
                 Email = inputData.Email,
-                AddressAirline= inputData.AddressAirline,
-                PhoneNumber=inputData.PhoneNumber,
+                AddressAirline = inputData.AddressAirline,
+                PhoneNumber = inputData.PhoneNumber,
                 IsDelete = 0
             });
             context.SaveChanges();
@@ -46,10 +46,9 @@ namespace Explora.Controllers
         }
 
         [HttpGet("Get-all")]
-        [Authorize(Roles = "Admin")]
         public IActionResult GetAllAirline()
         {
-            var airline= context.TAirlines.Select(a => new AirlineDto
+            var airline= context.TAirlines.Where(a => a.IsDelete == 0).Select(a => new AirlineDto
             {
                 IdAirline = a.IdAirline,
                 AirlineName = a.AirlineName,
@@ -62,11 +61,10 @@ namespace Explora.Controllers
             return Ok(new  { arilines = airline });
         }
         [HttpGet("Get-by-id/{id}")]
-        [Authorize(Roles = "Admin")]
         public IActionResult GetAirlineById(int id)
         {
             var airline = context.TAirlines.FirstOrDefault(a => a.IdAirline == id);
-            if (airline == null)
+            if (airline == null || airline.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -77,7 +75,7 @@ namespace Explora.Controllers
         public IActionResult UpdateById(int id, UpdateAirlineDto dataUpdate)
         {
             var airline = context.TAirlines.FirstOrDefault(a => a.IdAirline == id);
-            if (airline == null)
+            if (airline == null || airline.IsDelete != 0)
             {
                 return NotFound();
             }
@@ -92,7 +90,7 @@ namespace Explora.Controllers
         public IActionResult DeleteById(int id)
         {
             var airline = context.TAirlines.FirstOrDefault(a => a.IdAirline == id);
-            if (airline == null)
+            if (airline == null || airline.IsDelete != 0)
             {
                 return NotFound();
             }

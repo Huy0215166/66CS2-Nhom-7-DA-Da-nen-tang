@@ -35,6 +35,7 @@
     <None Remove="dto\CreateDto\" />
     <None Remove="dto\GetDto\" />
     <None Remove="dto\UpdateDto\" />
+    <None Remove="dto\FindDto\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dto\" />
@@ -44,5 +45,6 @@
     <Folder Include="dto\CreateDto\" />
     <Folder Include="dto\GetDto\" />
     <Folder Include="dto\UpdateDto\" />
+    <Folder Include="dto\FindDto\" />
   </ItemGroup>
 </Project>
