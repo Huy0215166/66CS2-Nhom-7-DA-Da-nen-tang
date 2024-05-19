@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_AIRLINE")]
 public partial class TAirline
 {
+    [Key]
     public int IdAirline { get; set; }
 
     public string AirlineName { get; set; } = null!;

@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_ORDER_BUS")]
 public partial class TOrderBu
 {
+    [Key]
     public int OrderId { get; set; }
 
     public int Amount { get; set; }

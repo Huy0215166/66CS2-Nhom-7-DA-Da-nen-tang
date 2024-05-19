@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_BUS")]
 public partial class TBu
 {
+    [Key]
     public int IdBus { get; set; }
 
     public int IdNhaXe { get; set; }

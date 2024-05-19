@@ -13,15 +13,24 @@ namespace Explora.dto
 
         public string PhoneNumber { get; set; } = null!;
 
+        public int Amount { get; set; }
+
+
         public int TotalPrice { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
 
         public DateTime BuyTime { get; set; }
 
         public int UserId { get; set; }
 
-        public int IdRoom { get; set; }
-        
-        public TRoom IdRoomNavigation { get; set; } = new TRoom();
+        public  ICollection<TRoom> TRooms { get; set; }
+
+        public THotel Hotel { get; set; }
+
+
     }
 }
 

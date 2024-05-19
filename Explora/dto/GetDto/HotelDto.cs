@@ -17,6 +17,8 @@ namespace Explora.dto
 
         public int UserId { get; set; }
 
+        public string ImageUrl { get; set; }
+
         public int IsDelete { get; set; }
     
 	}

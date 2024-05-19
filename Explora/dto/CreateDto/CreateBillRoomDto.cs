@@ -16,8 +16,9 @@ namespace Explora.dto
         public DateTime StartTime { get; set; }
         [DataType(DataType.Date)]
         public DateTime EndTime { get; set; }
-        [Required(ErrorMessage = "Id phòng không được bỏ trống")]
-        public int IdRoom { get; set; }
+        public int Amount { get; set; }
+        public int IdHotel { get; set; }
+        public int RoomTypeId { get; set; }
     }
 }
 

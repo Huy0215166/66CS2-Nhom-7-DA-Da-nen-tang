@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_NHA_XE")]
 public partial class TNhaXe
 {
+    [Key]
     public int IdNhaXe { get; set; }
 
     public string NhaXeName { get; set; } = null!;

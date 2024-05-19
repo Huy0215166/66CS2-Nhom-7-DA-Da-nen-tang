@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_PLANE_TICKET")]
 public partial class TPlaneTicket
 {
+    [Key]
     public int TicketId { get; set; }
 
     public int OrderId { get; set; }
@@ -22,10 +26,6 @@ public partial class TPlaneTicket
     public string PasspostNumber { get; set; } = null!;
 
     public DateTime ExpiredTime { get; set; }
-
-    public int IdPlane { get; set; }
-
-    public virtual TPlane IdPlaneNavigation { get; set; } = null!;
 
     public virtual TOrderPlane Order { get; set; } = null!;
 }

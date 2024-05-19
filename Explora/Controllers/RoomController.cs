@@ -35,40 +35,29 @@ namespace Explora.Controllers
         // GET: api/values
         [HttpPost("Create")]
         [Authorize(Roles = "HotelOwner")]
-        [Consumes("multipart/form-data")]
-        public IActionResult CreateRoom([FromForm]CreateRoomDto inputData)
+       
+        public IActionResult CreateRoom(CreateRoomDto inputData)
         {
-            var hotel = context.THotels.FirstOrDefault(h => h.IdHotel == inputData.IdHotel);
-            if ( hotel == null || hotel.IsDelete != 0)
+
+
+            var hotel = context.THotels.Include(h=>h.TRooms).FirstOrDefault(h => h.IdHotel == inputData.HotelId);
+            if (hotel == null)
             {
                 return NotFound();
             }
-            ImageUploadResult? uploadResult = null;  
-            if(inputData.ImageUrl != null)
+            if (hotel.TRooms.Any(h=>h.RoomNumber==inputData.RoomNumber && h.IsDelete == 0) )
             {
-                using ( var filestream = inputData.ImageUrl.OpenReadStream())
-                {
-                    var uploadParam = new ImageUploadParams
-                    {
-                        File = new FileDescription(inputData.ImageUrl.FileName, filestream)
-                        
-                    };
-                    uploadResult = cloudinary.Upload(uploadParam);
-
-                }
+                return BadRequest(new { message = "Phòng đã tồn tại" });
             }
-            
             context.TRooms.Add(new TRoom
             { 
                 
-                IdHotel = inputData.IdHotel,
-                Price = inputData.Price,
-                Slot = inputData.Slot,
-                EmptySlot = inputData.Slot,
-                TypeRoom = inputData.TypeRoom,
-                ImageUrl = uploadResult?.SecureUrl.AbsoluteUri ?? "",
+                HotelId = inputData.HotelId,
+                RoomTypeId = inputData.RoomTypeId,
+                RoomNumber = inputData.RoomNumber,
                 IsDelete=0
             });;
+            hotel.RoomCount++;
             try
             {
                 context.SaveChanges();
@@ -85,13 +74,12 @@ namespace Explora.Controllers
             var room = context.TRooms.Where(r => r.IsDelete == 0).Select(r => new RoomDto
             {
                 IdRoom = r.IdRoom,  
-                IdHotel=r.IdHotel,
-                Price = r.Price,
-                Slot = r.Slot,
-                EmptySlot = r.EmptySlot,
-                TypeRoom = r.TypeRoom,
-                ImageUrl = r.ImageUrl,
-                IsDelete = r.IsDelete
+                HotelId = r.HotelId,
+                RoomTypeId = r.RoomTypeId,
+                RoomNumber = r.RoomNumber,
+                RoomType = r.RoomType,
+                IsDelete = r.IsDelete,
+                Hotel = r.Hotel,
             });
             return Ok(new { room });
         }
@@ -120,40 +108,27 @@ namespace Explora.Controllers
             {
                 return Forbid("Không phải khách sạn của bạn");
             }
-            var room = context.TRooms.Where(r => r.IdHotel == hotelId && r.IsDelete ==0).Select(r => new RoomDto
+            var room = context.TRooms.Where(r => r.HotelId == hotelId && r.IsDelete ==0).Select(r => new RoomDto
             {
                 IdRoom = r.IdRoom,
-                IdHotel = r.IdHotel,
-                Price = r.Price,
-                Slot = r.Slot,
-                EmptySlot = r.EmptySlot,
-                TypeRoom = r.TypeRoom,
-                ImageUrl = r.ImageUrl,
-                IsDelete = r.IsDelete
+                HotelId = r.HotelId,
+                RoomTypeId = r.RoomTypeId,
+                RoomNumber = r.RoomNumber,
+                RoomType = r.RoomType,
+                IsDelete = r.IsDelete,
+                Hotel = r.Hotel,
             });
             return Ok(new { room });
 
 
         }
-        [HttpPut("Update/{id}")]
+        /*[HttpPut("Update/{id}")]
         [Authorize(Roles = "HotelOwner")]
         [Consumes("multipart/form-data")]
-        public IActionResult UpdateById(int id,[FromForm] UpdateRoomDto dataUpdate)
+        public IActionResult UpdateById(int id, UpdateRoomDto dataUpdate)
         {
-            ImageUploadResult? uploadResult = null;
-            if (dataUpdate.Image != null)
-            {
-                using (var filestream = dataUpdate.Image.OpenReadStream())
-                {
-                    var uploadParam = new ImageUploadParams
-                    {
-                        File = new FileDescription(dataUpdate.Image.FileName, filestream)
+            
 
-                    };
-                    uploadResult = cloudinary.Upload(uploadParam);
-
-                }
-            }
             var room = context.TRooms.FirstOrDefault(r => r.IdRoom == id);
             if (room == null || room.IsDelete != 0)
             {
@@ -170,7 +145,7 @@ namespace Explora.Controllers
             }
             context.SaveChanges();
             return Ok(room);
-        }
+        }*/
         [HttpDelete("Delete/{id}")]
         [Authorize(Roles = "HotelOwner")]
         public IActionResult DeleteById(int id)
@@ -181,6 +156,8 @@ namespace Explora.Controllers
                 return NotFound();
             }
             room.IsDelete = 1;
+            var hotel = context.THotels.FirstOrDefault(h => h.IdHotel == room.HotelId);
+            hotel.RoomCount--;
             context.SaveChanges();
             return Ok();
         }

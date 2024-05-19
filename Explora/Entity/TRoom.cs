@@ -1,27 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_ROOM")]
 public partial class TRoom
 {
+    [Key]
     public int IdRoom { get; set; }
 
-    public int IdHotel { get; set; }
+    public int HotelId { get; set; }
 
-    public int Slot { get; set; }
+    public int RoomTypeId { get; set; }
 
-    public int EmptySlot { get; set; }
+    public int RoomNumber { get; set; }
 
-    public int Price { get; set; }
-
-    public string TypeRoom { get; set; } = null!;
-
-    public string ImageUrl { get; set; } = null!;
+    public virtual TRoomType RoomType { get; set; } = null!;
 
     public int IsDelete { get; set; }
 
-    public virtual THotel IdHotelNavigation { get; set; } = null!;
+    public virtual THotel Hotel { get; set; } = null!;
 
-    public virtual ICollection<TBillRoom> TBillRooms { get; set; } = new List<TBillRoom>();
+    public virtual ICollection<TBillRoom>? TBillRooms { get; set; } 
+
+    
+
 }

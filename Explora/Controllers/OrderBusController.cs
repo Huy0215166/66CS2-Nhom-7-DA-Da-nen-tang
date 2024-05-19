@@ -25,7 +25,7 @@ namespace Explora.Controllers
         }
         // GET: api/values
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult CreateOrder([FromBody] CreateOrderBusDto dataInput)
         {
             var bus = context.TBus.FirstOrDefault(p => p.IdBus == dataInput.IdBus);
@@ -45,7 +45,7 @@ namespace Explora.Controllers
                     GuessName = ticket.GuessName,
                     GuessEmail = ticket.GuessEmail,
                     PhoneNumber = ticket.PhoneNumber,
-                    IdBus = dataInput.IdBus
+                    
                 });
                 bus.EmptySlot--;
             }
@@ -83,13 +83,13 @@ namespace Explora.Controllers
             return Ok(new { bus });
         }
         [HttpGet("Get-by-id-user")]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult GetByIdUser()
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
 
-            var bill = context.TOrderBus.Include(b => b.TBusTickets).Include(b => b.User).
-                Include(b => b.IdBusNavigation).ThenInclude(b => b.IdNhaXeNavigation).Where(b => b.UserId == UserId).ToList();
+            var bill = context.TOrderBus.Include(b => b.IdBusNavigation).
+                ThenInclude(b => b.IdNhaXeNavigation).Where(b => b.UserId == UserId).ToList();
             if (bill == null)
             {
                 return NotFound();
@@ -102,10 +102,22 @@ namespace Explora.Controllers
                 BuyTime = b.BuyTime,
                 IdBus = b.IdBus,
                 UserId = b.UserId,
-                TBusTickets = b.TBusTickets,
                 IdBusNavigation = b.IdBusNavigation
             });
             return Ok(new { billbus });
         }
+        [HttpGet("Get-order-by-orderid/{id}")]
+        [Authorize]
+        public IActionResult GetOrderByOrderId(int id)
+        {
+            var bill = context.TOrderBus.Include(b => b.TBusTickets).Include(b => b.IdBusNavigation).ThenInclude(b => b.IdNhaXeNavigation).FirstOrDefault(b => b.OrderId == id);
+            if (bill == null)
+            {
+                return NotFound();
+            }
+            return Ok(new { bill });
+        }
     }
+        
+    
 }

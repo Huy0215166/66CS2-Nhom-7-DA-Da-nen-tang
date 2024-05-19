@@ -25,7 +25,7 @@ namespace Explora.Controllers
         }
         // GET: api/values
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult CreateOrder([FromBody] CreateOrderPlaneDto dataInput)
         {
             var plane = context.TPlanes.FirstOrDefault(p => p.IdPlane == dataInput.IdPlane);
@@ -49,7 +49,7 @@ namespace Explora.Controllers
                     Nationality = ticket.Nationality,
                     PasspostNumber = ticket.PasspostNumber,
                     ExpiredTime = ticket.ExpiredTime,
-                    IdPlane = dataInput.IdPlane
+                    
                 });
                 plane.EmptySlot--;
             }
@@ -86,13 +86,13 @@ namespace Explora.Controllers
             return Ok(new { plane });
         }
         [HttpGet("Get-by-id-user")]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult GetByIdUser()
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
 
-            var bill = context.TOrderPlanes.Include(p => p.TPlaneTickets).Include(p => p.User).
-                Include(p => p.IdPlaneNavigation).ThenInclude(p => p.IdAirlineNavigation).Where(p => p.UserId == UserId).ToList();
+            var bill = context.TOrderPlanes.Include(p => p.IdPlaneNavigation).
+                ThenInclude(p => p.IdAirlineNavigation).Where(p => p.UserId == UserId).ToList();
             if (bill == null)
             {
                 return NotFound();
@@ -110,7 +110,17 @@ namespace Explora.Controllers
             });
             return Ok(new { billplane });
         }
-
+        [HttpGet("Get-order-by-orderid/{id}")]
+        [Authorize]
+        public IActionResult GetOrderByOrderId(int id)
+        {
+            var bill = context.TOrderPlanes.Include(p => p.TPlaneTickets).Include(p => p.IdPlaneNavigation).ThenInclude(p => p.IdAirlineNavigation).FirstOrDefault(p => p.OrderId == id);
+            if (bill == null)
+            {
+                return NotFound();
+            }
+            return Ok(new { bill });
+        }
     }
 }
 

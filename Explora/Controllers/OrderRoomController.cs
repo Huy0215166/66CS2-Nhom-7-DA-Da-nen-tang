@@ -26,19 +26,19 @@ namespace Explora.Controllers
         }
         // GET: api/values
         [HttpPost("CreateBillRoom")]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult CreateOrder([FromBody] CreateBillRoomDto dataInput)
         {
-            var room = context.TRooms.FirstOrDefault(p => p.IdRoom == dataInput.IdRoom);
-            if (room == null || room.IsDelete != 0 )
-            {
-                return NotFound(new { message = "Không có phòng này" });
-            }
-            if (room.EmptySlot == 0)
-            {
-                return BadRequest(new { message = "Đã hết phòng" });
-            }
+            var room = context.TRooms.Include(r => r.TBillRooms)
+                .Where(h => !h.TBillRooms.Any(r => r.StartTime <= dataInput.EndTime && r.EndTime >= dataInput.StartTime))
+                .Where(h => h.RoomTypeId == dataInput.RoomTypeId).Take(dataInput.Amount).ToList();
 
+            if (room.Count < dataInput.Amount)
+            {
+                return BadRequest(new { message = "Hết phòng" });
+            }
+            
+            var roomtype = context.TRoomTypes.FirstOrDefault(rt => rt.RoomTypeId == dataInput.RoomTypeId);
             var order = context.TBillRooms.Add(new TBillRoom
             {
                 GuessName = dataInput.GuessName,
@@ -46,40 +46,23 @@ namespace Explora.Controllers
                 PhoneNumber = dataInput.PhoneNumber,
                 StartTime = dataInput.StartTime,
                 EndTime = dataInput.EndTime,
-                TotalPrice = room.Price * (int)((dataInput.EndTime - dataInput.StartTime).TotalDays),
+                Amount = dataInput.Amount,
+                TotalPrice = roomtype.Price * (int)((dataInput.EndTime - dataInput.StartTime).TotalDays)*dataInput.Amount,
                 BuyTime = DateTime.Now.Date,
-                IdRoom = dataInput.IdRoom,
-                UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0")
+                HotelId = dataInput.IdHotel,
+                UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0"),
+                TRooms = room
             });
-            room.EmptySlot--;
+            
             context.SaveChanges();
             return Ok();
         }
-        [HttpGet("Get-all")]
-        [Authorize(Roles = "Admin")]
-        public IActionResult GetAllCreateOrder()
-        {
-            var room = context.TBillRooms.Include(r => r.IdRoomNavigation).ThenInclude(b => b.IdHotelNavigation).Select(r => new BillRoomDto
-            {
-                BillId = r.BillId,
-                GuessName = r.GuessName,
-                GuessEmail = r.GuessEmail,
-                PhoneNumber = r.PhoneNumber,
-                TotalPrice = r.TotalPrice,
-                BuyTime = r.BuyTime,
-                IdRoom = r.IdRoom,
-                UserId = r.UserId,
-                IdRoomNavigation = r.IdRoomNavigation,
-                
-            });
-            return Ok(new { room });
-        }
         [HttpGet("Get-by-id-user")]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public IActionResult GetByIdUser()
         {
             var UserId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
-            var bill = context.TBillRooms.Include(b => b.IdRoomNavigation).ThenInclude(b=>b.IdHotelNavigation).Where(b => b.UserId == UserId).ToList();
+            var bill = context.TBillRooms.Include(b => b.TRooms).ThenInclude(b=> b.RoomType).Include(b=>b.Hotel).Where(b => b.UserId == UserId).ToList();
             if (bill == null)
             {
                 return NotFound();
@@ -90,25 +73,19 @@ namespace Explora.Controllers
                 GuessName = r.GuessName,
                 GuessEmail = r.GuessEmail,
                 PhoneNumber = r.PhoneNumber,
+                Amount = r.Amount,
                 TotalPrice = r.TotalPrice,
+                StartTime = r.StartTime,
+                EndTime = r.EndTime,
                 BuyTime = r.BuyTime,
-                IdRoom = r.IdRoom,
+                TRooms = r.TRooms,
                 UserId = r.UserId,
-                IdRoomNavigation = r.IdRoomNavigation
+                Hotel = r.Hotel,
             });
             return Ok(new { billroom });
         }
-        [HttpPost("Check-out")]
-        [Authorize(Roles = "HotelOwner")]
-        public IActionResult CheckOut([FromBody] CreateBillRoomDto dataInput)
-        {
-            var room = context.TRooms.FirstOrDefault(p => p.IdRoom == dataInput.IdRoom);
-            room.EmptySlot++;
-            context.SaveChanges();
-            return Ok();
-        }
         [HttpGet("Get-by-id-Hotel/{id}")]
-        [Authorize(Roles = "HotelOwner")]
+        [Authorize]
         public IActionResult GetByHotel(int id)
         {
             var userId = Int32.Parse(User.FindFirst("Id")?.Value ?? "0");
@@ -121,18 +98,20 @@ namespace Explora.Controllers
             {
                 return Forbid("Không phải khách sạn của bạn");
             }
-            var bill = context.TBillRooms.Include(b => b.IdRoomNavigation).ThenInclude(b => b.IdHotelNavigation).Where(b => b.IdRoomNavigation.IdHotel == id).ToList();
+            var bill = context.TBillRooms.Include(b => b.TRooms).ThenInclude(b => b.RoomType).Include(b => b.Hotel).Where(b => b.HotelId == id).ToList();
             var billroom = bill.Select(r => new BillRoomDto
             {
                 BillId = r.BillId,
                 GuessName = r.GuessName,
                 GuessEmail = r.GuessEmail,
                 PhoneNumber = r.PhoneNumber,
+                Amount = r.Amount,
                 TotalPrice = r.TotalPrice,
+                StartTime = r.StartTime,
+                EndTime = r.EndTime,
                 BuyTime = r.BuyTime,
-                IdRoom = r.IdRoom,
+                TRooms = r.TRooms,
                 UserId = r.UserId,
-                IdRoomNavigation = r.IdRoomNavigation
 
             });
             return Ok(new { billroom });

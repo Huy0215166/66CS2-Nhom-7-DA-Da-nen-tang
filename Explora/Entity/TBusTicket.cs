@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Explora.Entity;
 
+[Table("t_BUS_TICKET")]
 public partial class TBusTicket
 {
+    [Key]
     public int TicketId { get; set; }
 
     public int OrderId { get; set; }
@@ -15,9 +19,6 @@ public partial class TBusTicket
 
     public string PhoneNumber { get; set; } = null!;
 
-    public int IdBus { get; set; }
-
-    public virtual TBu IdBusNavigation { get; set; } = null!;
 
     public virtual TOrderBu Order { get; set; } = null!;
 }

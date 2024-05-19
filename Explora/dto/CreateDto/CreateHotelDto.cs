@@ -15,7 +15,7 @@ namespace Explora.dto
         public string AddressHotel { get; set; }
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
         public string PhoneNumber { get; set; }
-        
+        public IFormFile ImageUrl { get; set; }
     }
 }
 
