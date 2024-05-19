@@ -21,6 +21,7 @@ public partial class TOrderBu
 
     public int IdBus { get; set; }
 
+    [ForeignKey("IdBus")]
     public virtual TBu IdBusNavigation { get; set; } = null!;
 
     public virtual ICollection<TBusTicket> TBusTickets { get; set; } = new List<TBusTicket>();

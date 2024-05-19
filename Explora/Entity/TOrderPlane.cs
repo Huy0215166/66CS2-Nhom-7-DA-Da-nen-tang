@@ -21,6 +21,7 @@ public partial class TOrderPlane
 
     public int IdPlane { get; set; }
 
+    [ForeignKey("IdPlane")]
     public virtual TPlane IdPlaneNavigation { get; set; } = null!;
 
     public virtual ICollection<TPlaneTicket> TPlaneTickets { get; set; } = new List<TPlaneTicket>();

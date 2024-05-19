@@ -29,6 +29,7 @@ public partial class TBu
 
     public int IsDelete { get; set; }
 
+    [ForeignKey("IdNhaXe")]
     public virtual TNhaXe IdNhaXeNavigation { get; set; } = null!;
 
     public virtual ICollection<TBusTicket> TBusTickets { get; set; } = new List<TBusTicket>();

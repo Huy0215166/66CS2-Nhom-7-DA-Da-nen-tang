@@ -126,9 +126,6 @@ namespace Explora.Migrations
                     b.Property<int>("IdNhaXe")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdNhaXeNavigationIdNhaXe")
-                        .HasColumnType("int");
-
                     b.Property<int>("IsDelete")
                         .HasColumnType("int");
 
@@ -147,7 +144,7 @@ namespace Explora.Migrations
 
                     b.HasKey("IdBus");
 
-                    b.HasIndex("IdNhaXeNavigationIdNhaXe");
+                    b.HasIndex("IdNhaXe");
 
                     b.ToTable("t_BUS");
                 });
@@ -280,9 +277,6 @@ namespace Explora.Migrations
                     b.Property<int>("IdBus")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdBusNavigationIdBus")
-                        .HasColumnType("int");
-
                     b.Property<int>("TotalPrice")
                         .HasColumnType("int");
 
@@ -291,7 +285,7 @@ namespace Explora.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("IdBusNavigationIdBus");
+                    b.HasIndex("IdBus");
 
                     b.HasIndex("UserId");
 
@@ -315,9 +309,6 @@ namespace Explora.Migrations
                     b.Property<int>("IdPlane")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdPlaneNavigationIdPlane")
-                        .HasColumnType("int");
-
                     b.Property<int>("TotalPrice")
                         .HasColumnType("int");
 
@@ -326,7 +317,7 @@ namespace Explora.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("IdPlaneNavigationIdPlane");
+                    b.HasIndex("IdPlane");
 
                     b.HasIndex("UserId");
 
@@ -351,9 +342,6 @@ namespace Explora.Migrations
                     b.Property<int>("IdAirline")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdAirlineNavigationIdAirline")
-                        .HasColumnType("int");
-
                     b.Property<int>("IsDelete")
                         .HasColumnType("int");
 
@@ -376,7 +364,7 @@ namespace Explora.Migrations
 
                     b.HasKey("IdPlane");
 
-                    b.HasIndex("IdAirlineNavigationIdAirline");
+                    b.HasIndex("IdAirline");
 
                     b.ToTable("t_PLANE");
                 });
@@ -598,7 +586,7 @@ namespace Explora.Migrations
             modelBuilder.Entity("Explora.Entity.TBillRoom", b =>
                 {
                     b.HasOne("Explora.Entity.THotel", "Hotel")
-                        .WithMany()
+                        .WithMany("BillRooms")
                         .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -618,7 +606,7 @@ namespace Explora.Migrations
                 {
                     b.HasOne("Explora.Entity.TNhaXe", "IdNhaXeNavigation")
                         .WithMany("TBus")
-                        .HasForeignKey("IdNhaXeNavigationIdNhaXe")
+                        .HasForeignKey("IdNhaXe")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -655,7 +643,7 @@ namespace Explora.Migrations
                 {
                     b.HasOne("Explora.Entity.TBu", "IdBusNavigation")
                         .WithMany("TOrderBus")
-                        .HasForeignKey("IdBusNavigationIdBus")
+                        .HasForeignKey("IdBus")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -674,7 +662,7 @@ namespace Explora.Migrations
                 {
                     b.HasOne("Explora.Entity.TPlane", "IdPlaneNavigation")
                         .WithMany("TOrderPlanes")
-                        .HasForeignKey("IdPlaneNavigationIdPlane")
+                        .HasForeignKey("IdPlane")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -693,7 +681,7 @@ namespace Explora.Migrations
                 {
                     b.HasOne("Explora.Entity.TAirline", "IdAirlineNavigation")
                         .WithMany("TPlanes")
-                        .HasForeignKey("IdAirlineNavigationIdAirline")
+                        .HasForeignKey("IdAirline")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -743,7 +731,7 @@ namespace Explora.Migrations
                         .IsRequired();
 
                     b.HasOne("Explora.Entity.TRoomType", "RoomType")
-                        .WithMany()
+                        .WithMany("Rooms")
                         .HasForeignKey("RoomTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -793,6 +781,8 @@ namespace Explora.Migrations
 
             modelBuilder.Entity("Explora.Entity.THotel", b =>
                 {
+                    b.Navigation("BillRooms");
+
                     b.Navigation("RoomTypes");
 
                     b.Navigation("TRooms");
@@ -823,6 +813,11 @@ namespace Explora.Migrations
             modelBuilder.Entity("Explora.Entity.TRole", b =>
                 {
                     b.Navigation("TRoleUsers");
+                });
+
+            modelBuilder.Entity("Explora.Entity.TRoomType", b =>
+                {
+                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("Explora.Entity.TUser", b =>
