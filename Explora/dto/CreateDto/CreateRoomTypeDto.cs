@@ -5,7 +5,7 @@ namespace Explora.dto.CreateDto
 	{
         public string RoomTypeName { get; set; }
 
-        public IFormFile ImageUrl { get; set; }
+        public IFormFile? ImageUrl { get; set; }
 
         public int Price { get; set; }
 
