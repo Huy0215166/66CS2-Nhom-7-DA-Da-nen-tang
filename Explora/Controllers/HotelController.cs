@@ -106,7 +106,7 @@ namespace Explora.Controllers
             var query2 = context.THotels.Include(h => h.TRooms).ThenInclude(h => h.TBillRooms).Select(h => new {
                 EmptyRoomCount = h.TRooms.Count(h=> !h.TBillRooms.Any(r => r.StartTime <= inputData.EndTime && r.EndTime >= inputData.StartTime)),
                 hotel = h
-            }).Where(h=>h.EmptyRoomCount >= inputData.RoomNumber).ToList();
+            }).Where(h=>h.EmptyRoomCount >= inputData.RoomNumber && h.hotel.AddressHotel.Contains(inputData.AddressHotel)).ToList();
             return Ok(new { query2 });
 
         }
